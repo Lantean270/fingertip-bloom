@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#08070b" />
+  <meta name="description" content="指尖生花 —— 一支由手势唤醒的粒子花。握拳收拢成苞，张开手掌，让光在指尖绽放。" />
+  <meta name="author" content="Lantean" />
+  <title>指尖生花 · GESTURES IN BLOOM</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2308070b'/%3E%3Cg fill='none' stroke='%23f6d4bb' stroke-width='2.2'%3E%3Cpath d='M32 32c0-10-7-16-15-16 0 9 6 16 15 16Z'/%3E%3Cpath d='M32 32c10 0 16-7 16-15-9 0-16 6-16 15Z'/%3E%3Cpath d='M32 32c0 10 7 16 15 16 0-9-6-16-15-16Z'/%3E%3Cpath d='M32 32c-10 0-16 7-16 15 9 0 16-6 16-15Z'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='3' fill='%23ffb796'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <div class="page-grain" aria-hidden="true"></div>
+
+  <div class="atmosphere" aria-hidden="true">
+    <div class="aura aura--rose"></div>
+    <div class="aura aura--indigo"></div>
+    <div class="orbit orbit--outer"><span></span></div>
+    <div class="orbit orbit--inner"></div>
+    <div class="hairlines"></div>
+  </div>
+
+  <canvas id="scene" aria-label="由手势控制的粒子花朵"></canvas>
+
+  <div class="cursor-halo" id="cursorHalo" aria-hidden="true">
+    <span></span>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand__mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <path d="M20 20C20 11.7 14.2 5.5 6.7 5.5 6.7 13.4 12.2 20 20 20Z" stroke="currentColor" stroke-width="1.1"/>
+        <path d="M20 20c8.3 0 14.5-5.8 14.5-13.3C26.6 6.7 20 12.2 20 20Z" stroke="currentColor" stroke-width="1.1"/>
+        <path d="M20 20c0 8.3 5.8 14.5 13.3 14.5C33.3 26.6 27.8 20 20 20Z" stroke="currentColor" stroke-width="1.1"/>
+        <path d="M20 20C11.7 20 5.5 25.8 5.5 33.3 13.4 33.3 20 27.8 20 20Z" stroke="currentColor" stroke-width="1.1"/>
+        <circle cx="20" cy="20" r="1.9" fill="currentColor"/>
+      </svg>
+      <div class="brand__type">
+        <span class="brand__name">ANTHOS</span>
+        <span class="brand__sub">Interactive botanical study</span>
+        <span class="brand__credit">created by <b>Lantean</b></span>
+      </div>
+    </div>
+
+    <div class="topbar__meta">
+      <span class="meta-study">STUDY <b>Nº 01</b></span>
+      <span class="meta-separator"></span>
+      <span class="system-state" id="systemState">
+        <i class="status-dot"></i>
+        <span id="systemText">SYSTEM READY</span>
+      </span>
+      <button class="live-exit" id="exitCameraBtn" type="button" aria-label="退出实时手势">
+        <span>退出实时</span>
+        <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M6.5 4.5 11 9l-4.5 4.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 9h8" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <aside class="live-hud" id="liveHud" aria-hidden="true">
+    <div class="live-hud__rail">
+      <span class="live-hud__kicker"><i></i> LIVE GESTURE / 21 POINTS</span>
+      <span class="live-hud__rule"></span>
+      <span class="live-hud__en" id="liveGestureEn">SHOW YOUR HAND</span>
+      <b class="live-hud__zh" id="liveGestureZh">将手放入画面</b>
+      <span class="live-hud__hint">保持单手入镜 · 动作放慢</span>
+    </div>
+    <div class="live-hud__foot">
+      <span>握拳 · 收拢</span>
+      <i></i>
+      <span>张开 · 绽放</span>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="eyebrow reveal" style="--delay: .15s">
+        <span class="eyebrow__rule"></span>
+        <span>Gestures in bloom</span>
+        <sup>01</sup>
+      </div>
+
+      <h1 class="hero__title reveal" id="heroTitle" style="--delay: .24s">
+        <span class="hero__line">指尖</span>
+        <span class="hero__line hero__line--accent">生花</span>
+      </h1>
+
+      <p class="hero__en reveal" style="--delay: .34s">A flower that answers<br />to the language of your hand.</p>
+      <p class="hero__copy reveal" style="--delay: .42s">
+        以手为语，以光为壤。握拳，花归于寂静；<br />
+        舒展五指，让三千片微光在呼吸之间苏醒。
+      </p>
+
+      <div class="hero__actions reveal" style="--delay: .5s">
+        <button class="btn btn--primary" id="cameraBtn" type="button" aria-describedby="privacyNote">
+          <span class="btn__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 8.5V7a3 3 0 0 1 3-3h1.5M15.5 4H17a3 3 0 0 1 3 3v1.5M20 15.5V17a3 3 0 0 1-3 3h-1.5M8.5 20H7a3 3 0 0 1-3-3v-1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.3"/>
+              <circle cx="12" cy="12" r=".8" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="btn__text">
+            <span class="btn__main" id="cameraBtnText">开启手势</span>
+            <span class="btn__sub" id="cameraBtnSub">ENABLE CAMERA</span>
+          </span>
+          <span class="btn__arrow" aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M4 10h11m-4.2-4.2L15 10l-4.2 4.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+
+        <button class="btn btn--ghost" id="guideBtn" type="button">
+          <span class="btn__dot" aria-hidden="true"></span>
+          <span>如何交互</span>
+        </button>
+      </div>
+
+      <p class="privacy-note reveal" id="privacyNote" style="--delay: .58s">
+        <span class="privacy-note__lock" aria-hidden="true"></span>
+        影像仅在本机处理，不会上传
+        <em>ON-DEVICE ONLY</em>
+      </p>
+    </section>
+
+    <aside class="specimen" aria-hidden="true">
+      <span class="specimen__top">SPECIMEN <b>001</b></span>
+      <span class="specimen__rule"></span>
+      <span class="specimen__label">PARTICLE FIELD</span>
+      <strong class="specimen__count" id="particleCount">27,850</strong>
+      <span class="specimen__coord">31.23° N / 121.47° E</span>
+    </aside>
+
+    <div class="interaction-note" id="interactionNote" aria-hidden="true">
+      <span class="interaction-note__line"></span>
+      <span id="interactionText">移动指针 · 触碰花瓣</span>
+    </div>
+  </main>
+
+  <footer class="bottombar">
+    <div class="cam-module" id="camModule">
+      <div class="cam-frame" id="camFrame">
+        <video id="cameraVideo" playsinline muted autoplay aria-hidden="true"></video>
+        <canvas id="handCanvas" width="272" height="204" aria-hidden="true"></canvas>
+        <div class="cam-frame__idle" id="camIdle">
+          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M9 15.5V12a1.7 1.7 0 0 1 3.4 0v-.8a1.7 1.7 0 0 1 3.4 0v1.2-1.6a1.7 1.7 0 0 1 3.4 0v2-1a1.7 1.7 0 0 1 3.4 0v5.7a6.6 6.6 0 0 1-6.6 6.6h-.8a6 6 0 0 1-6-6v-2.2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+          </svg>
+          <span>STANDBY</span>
+        </div>
+        <div class="cam-frame__scan"></div>
+        <span class="cam-corner cam-corner--tl"></span>
+        <span class="cam-corner cam-corner--tr"></span>
+        <span class="cam-corner cam-corner--bl"></span>
+        <span class="cam-corner cam-corner--br"></span>
+        <div class="cam-frame__rec"><i></i> LIVE</div>
+      </div>
+      <div class="cam-meta">
+        <span class="cam-meta__state" id="camState">CAMERA STANDBY</span>
+        <span class="cam-meta__sub">21-POINT HAND TRACKING</span>
+      </div>
+    </div>
+
+    <div class="gesture-guide" aria-label="手势说明">
+      <div class="gesture-guide__item">
+        <span class="gesture-guide__index">01</span>
+        <svg class="gesture-guide__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path d="M8.2 17.2v-3.6a1.7 1.7 0 0 1 3.4 0v-.8a1.7 1.7 0 0 1 3.4 0v1.1-1.4a1.7 1.7 0 0 1 3.4 0v2-1a1.7 1.7 0 0 1 3.4 0v5.3a6.4 6.4 0 0 1-6.4 6.4h-1.2a5.7 5.7 0 0 1-5.7-5.7v-1.6" stroke="currentColor" stroke-width="1.05" stroke-linecap="round"/>
+          <path d="M8.2 17.6h13.2" stroke="currentColor" stroke-width="1.05" stroke-linecap="round" opacity=".4"/>
+        </svg>
+        <span class="gesture-guide__copy">
+          <b>握拳</b>
+          <small>CLOSE</small>
+        </span>
+        <span class="gesture-guide__result">收拢为苞</span>
+      </div>
+
+      <span class="gesture-guide__divider"></span>
+
+      <div class="gesture-guide__item">
+        <span class="gesture-guide__index">02</span>
+        <svg class="gesture-guide__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path d="M16 27.2c-4.9 0-7.8-3.2-7.8-8V9.6a1.6 1.6 0 0 1 3.2 0v5.8-8.2a1.6 1.6 0 0 1 3.2 0v7.2-9.6a1.6 1.6 0 0 1 3.2 0v9.6-7.4a1.6 1.6 0 0 1 3.2 0v7.4-2.2a1.6 1.6 0 0 1 3.2 0v6.4a7.8 7.8 0 0 1-7.8 7.8Z" stroke="currentColor" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="gesture-guide__copy">
+          <b>张开手掌</b>
+          <small>OPEN</small>
+        </span>
+        <span class="gesture-guide__result">向外绽放</span>
+      </div>
+    </div>
+
+    <div class="bloom-module">
+      <div class="bloom-module__head">
+        <span>BLOOM LEVEL</span>
+        <span class="bloom-module__value"><b id="bloomValue">00</b><i>%</i></span>
+      </div>
+      <div class="bloom-track"><i class="bloom-track__fill" id="bloomFill"></i><span class="bloom-track__spark" id="bloomSpark"></span></div>
+      <div class="bloom-module__foot">
+        <span>BUD / 闭合</span>
+        <span id="gestureLabel">AWAITING HAND</span>
+        <span>FULL / 盛放</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="guide-modal" id="guideModal" role="dialog" aria-modal="true" aria-labelledby="guideTitle" aria-hidden="true">
+    <button class="guide-modal__backdrop" type="button" data-close-guide aria-label="关闭交互说明"></button>
+    <div class="guide-card">
+      <div class="guide-card__head">
+        <span class="guide-card__eyebrow">FIELD NOTES / 01</span>
+        <button class="guide-card__close" type="button" data-close-guide aria-label="关闭">
+          <svg viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <h2 id="guideTitle">与花共生</h2>
+      <p class="guide-card__lede">让手势成为风的形状。花朵会跟随开合、位置和指尖的靠近，实时回应。</p>
+      <ol class="guide-steps">
+        <li>
+          <span class="guide-steps__num">01</span>
+          <div><b>开启手势</b><p>允许浏览器访问摄像头。所有画面都只在你的设备上计算。</p></div>
+        </li>
+        <li>
+          <span class="guide-steps__num">02</span>
+          <div><b>握拳 · 张开</b><p>将手放进画面中央。轻轻握拳，花收拢成苞；五指舒展，花瓣向外醒来。</p></div>
+        </li>
+        <li>
+          <span class="guide-steps__num">03</span>
+          <div><b>移动指尖</b><p>掌心平移会牵引整朵花，指尖靠近花瓣时，光点会被温柔地推开。</p></div>
+        </li>
+      </ol>
+      <div class="guide-card__foot">
+        <span>无需摄像头？移动指针并点击花朵即可。</span>
+        <button class="guide-card__action" type="button" id="guideEnableBtn">开启手势 <span>↗</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="loader" id="loader" aria-label="正在加载">
+    <div class="loader__inner">
+      <svg class="loader__mark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <path d="M32 32C32 18.7 23.2 9.5 11.7 9.5 11.7 21.4 20.2 32 32 32Z" stroke="currentColor" stroke-width="1.1"/>
+        <path d="M32 32c13.3 0 22.5-8.8 22.5-20.3C42.6 11.7 32 20.2 32 32Z" stroke="currentColor" stroke-width="1.1"/>
+        <path d="M32 32c0 13.3 8.8 22.5 20.3 22.5C52.3 42.6 43.8 32 32 32Z" stroke="currentColor" stroke-width="1.1"/>
+        <path d="M32 32C18.7 32 9.5 40.8 9.5 52.3 21.4 52.3 32 43.8 32 32Z" stroke="currentColor" stroke-width="1.1"/>
+        <circle cx="32" cy="32" r="2.8" fill="currentColor"/>
+      </svg>
+      <span class="loader__word">ANTHOS</span>
+      <span class="loader__caption">GESTURES IN BLOOM</span>
+      <div class="loader__track"><i id="loaderBar"></i></div>
+      <span class="loader__status" id="loaderStatus">正在唤醒花朵</span>
+    </div>
+  </div>
+
+  <noscript>
+    <div class="noscript">请启用 JavaScript 以进入这座花园。</div>
+  </noscript>
+
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.js" } }
+  </script>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
